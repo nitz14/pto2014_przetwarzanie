@@ -82,7 +82,7 @@ PNM* HistogramStretching::transform()
 
             for (int x=0; x<width; ++x){
                 for(int y=0; y<height; ++y){
-                    int v;
+                    //int v;
                     QRgb pixel = image->pixel(x,y); // Getting the pixel(x,y) value
 
                     int rgb[] = {qRed(pixel),qGreen(pixel),qBlue(pixel)};
