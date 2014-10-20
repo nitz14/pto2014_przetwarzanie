@@ -43,7 +43,7 @@ PNM* HistogramStretching::transform()
             {
                 QRgb pixel = image->pixel(x,y); // Getting the pixel(x,y) value
 
-                int v = 255 / (max-min) * (qGray(pixel) - min);
+                int v = count_strech_value(qGray(pixel), min, max);
 
                 newImage->setPixel(x, y, v);
             }
@@ -62,53 +62,46 @@ PNM* HistogramStretching::transform()
         chan.append(Blue);
         int j = 0;
 
+        int min[3] = {255, 255, 255};
+        int max[3] = {0, 0, 0};
+
         for (QHash<int, int> chans: chan){
-            int min = 255;
-            int max = 0;
             i = chans.constBegin();
             //min max
             while (i != chans.constEnd()){
                 int w = i.key();
                 if(w > 0)
                 {
-                    if (w < min) min = w;
-                    if (w > max) max = w;
+                    if (w < min[j]) min[j] = w;
+                    if (w > max[j]) max[j] = w;
                 }
                 ++i;
             }
+            ++j;
+        }
 
             for (int x=0; x<width; ++x){
-                for(int y=0; y>height; ++y){
+                for(int y=0; y<height; ++y){
                     int v;
-                    QRgb pixel;
-                    switch (j)
-                    {
-                    case 0 :
-                        pixel = image->pixel(x,y);
-                        v = 255 / (max-min) * (qGray(pixel) - min);
-                        newPixel = QColor(v,qGreen(pixel),qBlue(pixel));
-                        break;
-                    case 1 :
-                        pixel = image->pixel(x,y);
-                        v = 255 / (max-min) * (qGray(pixel) - min);
-                        newPixel = QColor(qRed(pixel),v,qBlue(pixel));
-                        break;
-                    case 2 :
-                        pixel = image->pixel(x,y);
-                        v = 255 / (max-min) * (qGray(pixel) - min);
-                        newPixel = QColor(qRed(pixel),qGreen(pixel),v);
-                        break;
-                    default :
-                        break;
+                    QRgb pixel = image->pixel(x,y); // Getting the pixel(x,y) value
+
+                    int rgb[] = {qRed(pixel),qGreen(pixel),qBlue(pixel)};
+
+                    for(int k=0; k<3; ++k) {
+                        rgb[k] = count_strech_value(rgb[k], min[k], max[k]);
                     }
+
+                    newPixel = QColor(rgb[0], rgb[1], rgb[2]);
                     newImage->setPixel(x,y,newPixel.rgb());
                 }
             }
-            ++j;
         }
-    }
 
     return newImage;
+}
+
+int HistogramStretching::count_strech_value(int v, int min, int max) {
+    return ((255.0 / (max-min)) * (v - min));
 }
 
 
