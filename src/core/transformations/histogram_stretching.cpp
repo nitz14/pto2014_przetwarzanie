@@ -22,14 +22,13 @@ PNM* HistogramStretching::transform()
     if (image->format() == QImage::Format_Indexed8)
     {
         QHash<int, int>::const_iterator i;
-        QHash<int, int>* hash = image->getHistogram()->get(Histogram::LChannel);
+        Histogram* hash = image->getHistogram();
+        QHash<int, int> chan = *hash->get(Histogram::LChannel);
         int min = 255;
-//        int min = 0
-//        int max = 0;
         int max = 0;
-        i = hash->constBegin();
+        i = chan.constBegin();
 
-        while (i != hash->constEnd()){
+        while (i != chan.constEnd()){
             int w = i.key();
             if(w > 0)
             {
@@ -38,19 +37,6 @@ PNM* HistogramStretching::transform()
             }
             ++i;
         }
-
-//        for (i = hash->constBegin(); i != hash->constEnd(); ++i) {
-//            if (i.value() != 0) {
-//                min = i.key();
-//                break;
-//            }
-//        }
-//        for (i = hash->constEnd(); i != hash->constBegin(); --i) {
-//            if (i.value() != 0) {
-//                max = i.key();
-//                break;
-//            }
-//        }
 
         for (int x=0; x<width; x++)
             for (int y=0; y<height; y++)
