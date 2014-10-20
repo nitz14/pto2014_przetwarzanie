@@ -19,7 +19,9 @@ PNM* HistogramEqualization::transform()
 
     PNM* newImage = new PNM(width, height, image->format());
 
-    qDebug() << Q_FUNC_INFO << "Not implemented yet!";
+    if(image->format() == QImage::Format_Indexed8){
+
+    }
 
     return newImage;
 }

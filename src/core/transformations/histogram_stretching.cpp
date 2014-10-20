@@ -23,23 +23,35 @@ PNM* HistogramStretching::transform()
     {
         QHash<int, int>::const_iterator i;
         QHash<int, int>* hash = image->getHistogram()->get(Histogram::LChannel);
-        int min = 0;
+        int min = 255;
+//        int min = 0
+//        int max = 0;
         int max = 0;
-        for (i = hash->constBegin(); i != hash->constEnd(); ++i) {
-            if (i.value() != 0) {
-                min = i.key();
-                break;
+        i = hash->constBegin();
+
+        while (i != hash->constEnd()){
+            int w = i.key();
+            if(w > 0)
+            {
+                if (w < min) min = w;
+                if (w > max) max = w;
             }
+            ++i;
         }
 
+//        for (i = hash->constBegin(); i != hash->constEnd(); ++i) {
+//            if (i.value() != 0) {
+//                min = i.key();
+//                break;
+//            }
+//        }
+//        for (i = hash->constEnd(); i != hash->constBegin(); --i) {
+//            if (i.value() != 0) {
+//                max = i.key();
+//                break;
+//            }
+//        }
 
-    // tutaj chyba jest zle
-        for (i = hash->constEnd(); i != hash->constBegin(); --i) {
-            if (i.value() != 0) {
-                max = i.key();
-                break;
-            }
-        }
         for (int x=0; x<width; x++)
             for (int y=0; y<height; y++)
             {
@@ -50,20 +62,64 @@ PNM* HistogramStretching::transform()
                 newImage->setPixel(x, y, v);
             }
     }
-    else if (image->format() == QImage::Format_RGB32) {
-//        for (int x=0; x<width; x++)
-//            for (int y=0; y<height; y++)
-//            {
-//                QRgb pixel = image->pixel(x,y); // Getting the pixel(x,y) value
+    else {
+        Histogram* hash = image->getHistogram();
+        hash->get(Histogram::RChannel);
+        QHash<int, int>::const_iterator i;
+        QList<QHash<int, int>> chan;
+        QHash<int, int> Red = *hash->get(Histogram::RChannel);
+        QHash<int, int> Green = *hash->get(Histogram::GChannel);
+        QHash<int, int> Blue = *hash->get(Histogram::BChannel);
+        QColor newPixel;
+        chan.append(Red);
+        chan.append(Green);
+        chan.append(Blue);
+        int j = 0;
 
-//                int r = qRed(pixel);    // Get the 0-255 value of the R channel
-//                int g = qGreen(pixel);  // Get the 0-255 value of the G channel
-//                int b = qBlue(pixel);   // Get the 0-255 value of the B channel
+        for (QHash<int, int> chans: chan){
+            int min = 255;
+            int max = 0;
+            i = chans.constBegin();
+            //min max
+            while (i != chans.constEnd()){
+                int w = i.key();
+                if(w > 0)
+                {
+                    if (w < min) min = w;
+                    if (w > max) max = w;
+                }
+                ++i;
+            }
 
-//                R->insert(r, R->value(r, 0)+1);
-//                G->insert(g, G->value(g, 0)+1);
-//                B->insert(b, B->value(b, 0)+1);
-//            }
+            for (int x=0; x<width; ++x){
+                for(int y=0; y>height; ++y){
+                    int v;
+                    QRgb pixel;
+                    switch (j)
+                    {
+                    case 0 :
+                        pixel = image->pixel(x,y);
+                        v = 255 / (max-min) * (qGray(pixel) - min);
+                        newPixel = QColor(v,qGreen(pixel),qBlue(pixel));
+                        break;
+                    case 1 :
+                        pixel = image->pixel(x,y);
+                        v = 255 / (max-min) * (qGray(pixel) - min);
+                        newPixel = QColor(qRed(pixel),v,qBlue(pixel));
+                        break;
+                    case 2 :
+                        pixel = image->pixel(x,y);
+                        v = 255 / (max-min) * (qGray(pixel) - min);
+                        newPixel = QColor(qRed(pixel),qGreen(pixel),v);
+                        break;
+                    default :
+                        break;
+                    }
+                    newImage->setPixel(x,y,newPixel.rgb());
+                }
+            }
+            ++j;
+        }
     }
 
     return newImage;
