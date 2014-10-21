@@ -26,14 +26,14 @@ PNM* HistogramEqualization::transform()
         double dis[256] = {0};
         i = chan.constBegin();
         while (i != chan.constEnd()){
-            dis[i.key()] += i.value()/ width * height;
+            dis[i.key()] += ((float) i.value() / (width * height));
             ++i;
         }
 
         for(int j=1; j<256;++j){
             dis[j] += dis[j-1];
         }
-        // blad !!
+
         for (int x=0; x<width; x++)
         {
             for (int y=0; y<height; y++)
@@ -54,40 +54,38 @@ PNM* HistogramEqualization::transform()
         chan.append(Red);
         chan.append(Green);
         chan.append(Blue);
-        int j = 0;
+
+        double dis[3][256] = {{0},{0},{0}};
+        int k = 0;
         for (QHash<int, int> chans: chan){
-            double dis[256] = {0};
             i = chans.constBegin();
             while (i != chans.constEnd()){
-                dis[i.key()] += i.value()/ width * height;
+                dis[k][i.key()] += ((float) i.value() / (float)(width * height));
                 ++i;
             }
             for(int j=1; j<256;++j){
-                dis[j] += dis[j-1];
+                dis[k][j] += dis[k][j-1];
             }
+            ++k;
+        }
 
-            for (int x=0; x<width; x++)
+        for (int x=0; x<width; x++)
+        {
+            for (int y=0; y<height; y++)
             {
-                for (int y=0; y<height; y++)
-                {
-                    QRgb pixel = image->pixel(x,y); // Getting the pixel(x,y) value
+                QRgb pixel = image->pixel(x,y); // Getting the pixel(x,y) value
+                int rgb[] = {qRed(pixel),qGreen(pixel),qBlue(pixel)};
 
-                    int rgb[] = {qRed(pixel),qGreen(pixel),qBlue(pixel)};
-
-                    //blad !!
-                    for(int k=0; k<3; ++k) {
-                        rgb[k] = dis[rgb[k]]*255;
-                    }
-
-                    newPixel = QColor(rgb[0], rgb[1], rgb[2]);
-                    newImage->setPixel(x,y,newPixel.rgb());
+                for(int k=0; k<3; ++k) {
+                    rgb[k] = dis[k][rgb[k]]*255;
                 }
+
+                newPixel = QColor(rgb[0], rgb[1], rgb[2]);
+                newImage->setPixel(x,y,newPixel.rgb());
             }
-
-
         }
     }
-
     return newImage;
 }
+
 
