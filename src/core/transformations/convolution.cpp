@@ -22,7 +22,12 @@ math::matrix<float> Convolution::getMask(int size, Mode mode = Normalize)
 {
     math::matrix<float> mask(size, size);
 
-    qDebug() << Q_FUNC_INFO << "Not implemented yet!";
+    for(int x=0; x<size; ++x){
+        for(int y=0; y<size; ++y){
+            mask(x, y) = 0;
+        }
+    }
+    mask(size/2, size/2) = 1;
 
     return mask;
 }
@@ -48,8 +53,11 @@ const math::matrix<float> Convolution::join(math::matrix<float> A, math::matrix<
     int size = A.rowno();
     math::matrix<float> C(size, size);
 
-    qDebug() << Q_FUNC_INFO << "Not implemented yet!";
-
+    for(int x=0; x<size; ++x){
+            for(int y=0; y<size; ++y) {
+                C(x, y) = A(x, y) * B(x, y);
+            }
+        }
     return C;
 }
 
@@ -57,8 +65,13 @@ const math::matrix<float> Convolution::join(math::matrix<float> A, math::matrix<
 const float Convolution::sum(const math::matrix<float> A)
 {
     float sum = 0.0;
-
-    qDebug() << Q_FUNC_INFO << "Not implemented yet!";
+    int col = A.colno();
+    int row  = A.rowno();
+    for(int x=0; x<row; ++x){
+            for(int y=0; y<col; ++y){
+                sum += A(x,y);
+            }
+        }
 
     return sum;
 
@@ -70,8 +83,15 @@ const math::matrix<float> Convolution::reflection(const math::matrix<float> A)
 {
     int size = A.rowno();
     math::matrix<float> C(size, size);
+    int col = A.colno();
+    int row  = A.rowno();
 
-    qDebug() << Q_FUNC_INFO << "Not implemented yet!";
-
+    for (int x = 0; x < row; x++){
+        for (int y = 0; y < col; y++){
+            int temp = A[x][y];
+            C[x][y] = A[col - 1 - y][row - 1 - x];
+            C[col - 1 - y][row - 1 - x] = temp;
+        }
+    }
     return C;
 }
