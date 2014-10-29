@@ -1,4 +1,5 @@
 #include "blur_gaussian.h"
+#include "qmath.h"
 
 BlurGaussian::BlurGaussian(PNM* img) :
     Convolution(img)

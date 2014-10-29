@@ -39,10 +39,41 @@ PNM* Convolution::convolute(math::matrix<float> mask, Mode mode = RepeatEdge)
         height = image->height();
 
     PNM* newImage = new PNM(width, height, image->format());
-    //tutaj nie ma
-    qDebug() << Q_FUNC_INFO << "Not implemented yet!";
+
+    int size = mask.rowno();
+
+    for(int x=0; x < image->width(); ++x) {
+        for(int y=0; y < image->height(); ++y) {
+            if(image->format() == QImage::Format_Indexed8) {
+                int l = this->convChannel(mask, x, y, size, LChannel, mode);
+                newImage->setPixel(x,y,l);
+            } else {
+                int r = this->convChannel(mask, x, y, size, RChannel, mode);
+                int g = this->convChannel(mask, x, y, size, GChannel, mode);
+                int b = this->convChannel(mask, x, y, size, BChannel, mode);
+                QColor newPixel = QColor(r,g,b);
+                newImage->setPixel(x,y, newPixel.rgb());
+            }
+        }
+    };
 
     return newImage;
+}
+
+const int Convolution::convChannel(math::matrix<float> mask, int x, int y, int size, Channel channel, Mode mode) {
+    float weight = this->sum(mask);
+    math::matrix<float> win = getWindow(x,y, size, channel, mode);
+    math::matrix<float> temp = this->join(win, this->reflection(mask));
+    float sum = this->sum(temp);
+    if(weight != 0) {
+        sum = (float)sum / weight;
+    }
+    if(sum > 255) {
+        sum = 255;
+    } else if(sum < 0) {
+        sum = 0;
+    }
+    return (int)sum;
 }
 
 /** Joins to matrices by multiplying the A[i,j] with B[i,j].
