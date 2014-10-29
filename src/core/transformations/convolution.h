@@ -18,6 +18,7 @@ protected:
     const math::matrix<float> join(math::matrix<float>, math::matrix<float>);
     const float               sum(math::matrix<float>);
     const math::matrix<float> reflection(math::matrix<float>);
+    const int                 convChannel(math::matrix<float>, int, int, int, Channel, Mode);
 };
 
 #endif // CONVOLUTION_H

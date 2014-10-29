@@ -55,25 +55,25 @@ PNM* Convolution::convolute(math::matrix<float> mask, Mode mode = RepeatEdge)
                 newImage->setPixel(x,y, newPixel.rgb());
             }
         }
-    };
+    }
 
     return newImage;
 }
 
 const int Convolution::convChannel(math::matrix<float> mask, int x, int y, int size, Channel channel, Mode mode) {
-    float weight = this->sum(mask);
+    float weight = sum(mask);
     math::matrix<float> win = getWindow(x,y, size, channel, mode);
     math::matrix<float> temp = this->join(win, this->reflection(mask));
-    float sum = this->sum(temp);
+    float suma = sum(temp);
     if(weight != 0) {
-        sum = (float)sum / weight;
+        suma = (float)suma / weight;
     }
-    if(sum > 255) {
-        sum = 255;
-    } else if(sum < 0) {
-        sum = 0;
+    if(suma > 255) {
+        suma = 255;
+    } else if(suma < 0) {
+        suma = 0;
     }
-    return (int)sum;
+    return (int)suma;
 }
 
 /** Joins to matrices by multiplying the A[i,j] with B[i,j].
@@ -119,7 +119,7 @@ const math::matrix<float> Convolution::reflection(const math::matrix<float> A)
 
     for (int x = 0; x < row; x++){
         for (int y = 0; y < col; y++){
-            C(i,j) = A(size - i - 1, size - j - 1);
+            C(x,y) = A(size - x - 1, size - y - 1);
         }
     }
     return C;
