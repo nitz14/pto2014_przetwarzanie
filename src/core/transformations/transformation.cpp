@@ -133,12 +133,23 @@ QRgb Transformation::getPixelNull(int x, int y)
   */
 QRgb Transformation::getPixelRepeat(int x, int y)
 {
-    if(x < 0) x = 0;
-    else if(x >= image->width()) x = image->width()-1;
-
-    if(y < 0) y = 0;
-    else if(y >= image->height()) y = image->height()-1;
-
+    if(x >= image->width() && y >= image->height()) {
+            return image->pixel(image->width() - 1, image->height() - 1);
+        } else if(x < 0 && y < 0) {
+            return image->pixel(0, 0);
+        } else if(x >= image->width() && y < 0) {
+            return image->pixel(image->width() - 1, 0);
+        } else if(x < 0 && y >= image->height()) {
+            return image->pixel(0, image->height() - 1);
+        } else if(x >= image->width()) {
+            return image->pixel(image->width() - 1, y);
+        } else if(x < 0) {
+            return image->pixel(0, y);
+        } else if(y >= image->height()) {
+            return image->pixel(x, image->height() - 1);
+        } else if(y < 0) {
+            return image->pixel(x, 0);
+        }
     return image->pixel(x,y);
 }
 
@@ -149,19 +160,30 @@ math::matrix<float> Transformation::getWindow(int x, int y, int size,
 {
     math::matrix<float> window(size,size);
 
-    int x_o = x - size/2;
-    int y_o = y - size/2;
+    int xy_o = x - size%2;
 
     for (int q=0 ;q<size; ++q){
+        int x_t = q - xy_o;
         for(int w=0; w<size;++w){
-            QRgb c = getPixel(x_o + q, y_o + w, mode);
-            //tego nie jestem pewien.
-                if(channel == RChannel) window(q,w) = qRed(c);
-                if(channel == GChannel) window(q,w) = qGreen(c);
-                if(channel == BChannel) window(q,w) = qBlue(c);
+            int y_t = w - xy_o;
+            QRgb c = this->getPixel(x + x_t, y + y_t, mode);
+            int channelValue;
+                        switch (channel) {
+                            case RChannel:
+                                channelValue = qRed(c);
+                                break;
+                            case GChannel:
+                                channelValue = qGreen(c);
+                                break;
+                            case BChannel:
+                                channelValue = qBlue(c);
+                                break;
+                            default:
+                                channelValue = qGray(c);
+                        }
+                        window(q,w) = (float)channelValue;
         }
     }
-
     return window;
 }
 

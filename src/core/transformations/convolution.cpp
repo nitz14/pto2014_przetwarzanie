@@ -39,7 +39,7 @@ PNM* Convolution::convolute(math::matrix<float> mask, Mode mode = RepeatEdge)
         height = image->height();
 
     PNM* newImage = new PNM(width, height, image->format());
-
+    //tutaj nie ma
     qDebug() << Q_FUNC_INFO << "Not implemented yet!";
 
     return newImage;
@@ -88,9 +88,7 @@ const math::matrix<float> Convolution::reflection(const math::matrix<float> A)
 
     for (int x = 0; x < row; x++){
         for (int y = 0; y < col; y++){
-            int temp = A[x][y];
-            C[x][y] = A[col - 1 - y][row - 1 - x];
-            C[col - 1 - y][row - 1 - x] = temp;
+            C(i,j) = A(size - i - 1, size - j - 1);
         }
     }
     return C;

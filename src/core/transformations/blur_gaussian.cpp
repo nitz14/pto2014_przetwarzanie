@@ -25,15 +25,17 @@ math::matrix<float> BlurGaussian::getMask(int size, Mode)
 {
     math::matrix<float> mask(size, size);
 
-    qDebug() << Q_FUNC_INFO << "Not implemented yet!";
-
+    for(int x=0; x<size; ++x){
+        for(int y=0; y<size; ++y){
+            mask(x,y)=getGauss(x-radius,y-radius,sigma);
+        }
+    }
     return mask;
 }
 
 float BlurGaussian::getGauss(int x, int y, float sigma)
 {    
-    qDebug() << Q_FUNC_INFO << "Not implemented yet!";
-
-    return 0;
+    double sigma_sq_x2 = 2 * pow(sigma,2);
+    return qExp(-(pow(x,2) + pow(y,2)) / sigma_sq_x2) / sigma_sq_x2;
 }
 
