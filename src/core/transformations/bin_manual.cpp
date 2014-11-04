@@ -31,10 +31,6 @@ PNM* BinarizationManual::transform()
             }
         }
 
-        return newImage;
     }
-
-
-
-
+    return newImage;
 }

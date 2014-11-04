@@ -29,12 +29,12 @@ PNM* BinarizationGradient::transform()
     {
         for (int y=0; y<height; ++y)
         {
-            QRgb pixel0 = image->pixel(x-1, y);
-            QRgb pixel1 = image->pixel(x+1, y);
+            QRgb pixel0 = image->pixel(x-1>=0 ? x-1 : x, y);
+            QRgb pixel1 = image->pixel(x+1 < width ? x+1 : x, y);
             gradientx = qGray(pixel1) - qGray(pixel0);
 
-            pixel0 = image->pixel(x, y-1);
-            pixel1 = image->pixel(x, y+1);
+            pixel0 = image->pixel(x, y-1>=0 ? y-1 : y);
+            pixel1 = image->pixel(x, y+1<height ? y+1 : y);
             gradienty = qGray(pixel1) - qGray(pixel0);
 
             if (gradientx >= gradienty) {
@@ -46,7 +46,7 @@ PNM* BinarizationGradient::transform()
             pixel = image->pixel(x, y);
             top += qGray(pixel) * gradient;
             bottom += gradient;
-            temp = top / bottom;
+            temp = bottom==0 ? 0 : top / bottom;
 
             if (qGray(pixel) >= temp){
                 newImage->setPixel(x, y, Qt::color1);
