@@ -24,10 +24,10 @@ math::matrix<float> Convolution::getMask(int size, Mode mode = Normalize)
 
     for(int x=0; x<size; ++x){
         for(int y=0; y<size; ++y){
-            mask(x, y) = 0;
+            mask(x, y) = 0.0;
         }
     }
-    mask(size/2, size/2) = 1;
+    mask(size/2, size/2) = 1.0;
 
     return mask;
 }
@@ -40,23 +40,67 @@ PNM* Convolution::convolute(math::matrix<float> mask, Mode mode = RepeatEdge)
 
     PNM* newImage = new PNM(width, height, image->format());
 
-    int size = mask.rowno();
+    double weight = sum(mask);
+    if (image->format() == QImage::Format_Indexed8){
+        for (int x = 0; x < width; x++){
+            for (int y = 0; y < height; y++){
+                math::matrix<float> okno = getWindow(x, y, mask.rowno(), LChannel, mode);
+                math::matrix<float> akumulator = join(okno, reflection(mask));
+                float sum_aku = sum(akumulator);
+                if (weight != 0){
+                    sum_aku = sum_aku / weight;
+                }
+                if (sum_aku > 255){
+                    sum_aku = 255;
+                }
+                if (sum_aku < 0){
+                    sum_aku = 0;
+                }
+                newImage->setPixel(x, y, (int)floor(sum_aku));
+            }
+        }
+    } else if (image->format() == QImage::Format_RGB32){
+        for (int x = 0; x < width; x++){
+            for (int y = 0; y < height; y++){
+                math::matrix<float> okno = getWindow(x, y, mask.rowno(), RChannel, mode);
+                math::matrix<float> akumulator = join(okno, reflection(mask));
+                float sum_aku_red = sum(akumulator);
+                okno = getWindow(x, y, mask.rowno(), GChannel, mode);
+                akumulator = join(okno, reflection(mask));
+                float sum_aku_green = sum(akumulator);
 
-    for(int x=0; x < image->width(); ++x) {
-        for(int y=0; y < image->height(); ++y) {
-            if(image->format() == QImage::Format_Indexed8) {
-                int l = this->convChannel(mask, x, y, size, LChannel, mode);
-                newImage->setPixel(x,y,l);
-            } else {
-                int r = this->convChannel(mask, x, y, size, RChannel, mode);
-                int g = this->convChannel(mask, x, y, size, GChannel, mode);
-                int b = this->convChannel(mask, x, y, size, BChannel, mode);
-                QColor newPixel = QColor(r,g,b);
-                newImage->setPixel(x,y, newPixel.rgb());
+                okno = getWindow(x, y, mask.rowno(), BChannel, mode);
+                akumulator = join(okno, reflection(mask));
+                float sum_aku_blue = sum(akumulator);
+                if (weight != 0)
+                {
+                    sum_aku_red = sum_aku_red / weight;
+                    sum_aku_green = sum_aku_green / weight;
+                    sum_aku_blue = sum_aku_blue / weight;
+                }
+                if (sum_aku_red > 255) {
+                    sum_aku_red = 255;
+                }
+                if (sum_aku_red < 0){
+                    sum_aku_red = 0;
+                }
+                if (sum_aku_green > 255) {
+                    sum_aku_green = 255;
+                }
+                if (sum_aku_green < 0){
+                    sum_aku_green = 0;
+                }
+                if (sum_aku_blue > 255) {
+                    sum_aku_blue = 255;
+                }
+                if (sum_aku_blue < 0){
+                    sum_aku_blue = 0;
+                }
+                QColor new_value = QColor((int)floor(sum_aku_red), (int)floor(sum_aku_green), (int)floor(sum_aku_blue));
+                newImage->setPixel(x, y, new_value.rgb());
             }
         }
     }
-
     return newImage;
 }
 
@@ -84,8 +128,8 @@ const math::matrix<float> Convolution::join(math::matrix<float> A, math::matrix<
     int size = A.rowno();
     math::matrix<float> C(size, size);
 
-    for(int x=0; x<size; ++x){
-            for(int y=0; y<size; ++y) {
+    for(int x=0; x<size; x++){
+            for(int y=0; y<size; y++) {
                 C(x, y) = A(x, y) * B(x, y);
             }
         }
@@ -98,8 +142,8 @@ const float Convolution::sum(const math::matrix<float> A)
     float sum = 0.0;
     int col = A.colno();
     int row  = A.rowno();
-    for(int x=0; x<row; ++x){
-            for(int y=0; y<col; ++y){
+    for(int x=0; x<row; x++){
+            for(int y=0; y<col; y++){
                 sum += A(x,y);
             }
         }
@@ -119,7 +163,7 @@ const math::matrix<float> Convolution::reflection(const math::matrix<float> A)
 
     for (int x = 0; x < row; x++){
         for (int y = 0; y < col; y++){
-            C(x,y) = A(size - x - 1, size - y - 1);
+            C((size - 1 - x), (size - 1 - y)) = A(x, y);
         }
     }
     return C;

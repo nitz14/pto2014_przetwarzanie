@@ -103,11 +103,19 @@ QRgb Transformation::getPixel(int x, int y, Mode mode)
  */
 QRgb Transformation::getPixelCyclic(int x, int y)
 {
-    int x_t= image->width();
-    int y_t= image->height();
-    if(x_t < 0) x_t += image->width();
-    if(y_t < 0) y_t += image->height();
-    return image->pixel(x_t, y_t);
+    int width = image->width();
+    int height = image->height();
+
+    x = x % width;
+    y = y % height;
+    if (x < 0) {
+        x = x + width;
+    }
+    if (y < 0) {
+        y = y + height;
+    }
+
+    return image->pixel(x,y);
 }
 
 /**
@@ -118,12 +126,11 @@ QRgb Transformation::getPixelNull(int x, int y)
 {
     if(x >= image->width() || x < 0 || y < 0 || y >= image->height())
     {
-         return qRgb(0,0,0);
+        QColor newPixel = QColor(0, 0, 0);
+        image->setPixel(x, y, newPixel.rgb());
     }
-    else
-    {
-        return image->pixel(x,y);
-    }
+
+    return image->pixel(x,y);
 }
 
 /**
@@ -133,23 +140,21 @@ QRgb Transformation::getPixelNull(int x, int y)
   */
 QRgb Transformation::getPixelRepeat(int x, int y)
 {
-    if(x >= image->width() && y >= image->height()) {
-            return image->pixel(image->width() - 1, image->height() - 1);
-        } else if(x < 0 && y < 0) {
-            return image->pixel(0, 0);
-        } else if(x >= image->width() && y < 0) {
-            return image->pixel(image->width() - 1, 0);
-        } else if(x < 0 && y >= image->height()) {
-            return image->pixel(0, image->height() - 1);
-        } else if(x >= image->width()) {
-            return image->pixel(image->width() - 1, y);
-        } else if(x < 0) {
-            return image->pixel(0, y);
-        } else if(y >= image->height()) {
-            return image->pixel(x, image->height() - 1);
-        } else if(y < 0) {
-            return image->pixel(x, 0);
-        }
+    int width = image->width();
+    int height = image->height();
+    if (x < 0){
+        x = 0;
+    }
+    else if (x >= width){
+        x = width - 1;
+    }
+    if (y < 0){
+        y = 0;
+    }
+    else if (y >= height){
+        y = height - 1;
+    }
+
     return image->pixel(x,y);
 }
 
@@ -160,30 +165,65 @@ math::matrix<float> Transformation::getWindow(int x, int y, int size,
 {
     math::matrix<float> window(size,size);
 
-    int xy_o = x - size%2;
 
-    for (int q=0 ;q<size; ++q){
-        int x_t = q - xy_o;
-        for(int w=0; w<size;++w){
-            int y_t = w - xy_o;
-            QRgb c = this->getPixel(x + x_t, y + y_t, mode);
-            int channelValue;
-                        switch (channel) {
-                            case RChannel:
-                                channelValue = qRed(c);
-                                break;
-                            case GChannel:
-                                channelValue = qGreen(c);
-                                break;
-                            case BChannel:
-                                channelValue = qBlue(c);
-                                break;
-                            default:
-                                channelValue = qGray(c);
-                        }
-                        window(q,w) = (float)channelValue;
+    int matrix_row = 0, matrix_col = 0;
+    int halfSize = floor(size / 2);
+
+
+    if (channel == RChannel){
+
+        for (int temp_x = x - halfSize; temp_x <= x + halfSize; temp_x++)
+        {
+            for (int temp_y = y - halfSize; temp_y <= y + halfSize; temp_y++)
+            {
+                QRgb value_pixel = Transformation::getPixel(temp_x, temp_y, mode);
+                window(matrix_row, matrix_col) = qRed(value_pixel);
+
+                matrix_col++;
+            }
+            matrix_row++, matrix_col = 0;
+        }
+    } else if (channel == GChannel){
+
+        for (int temp_x = x - halfSize; temp_x <= x + halfSize; temp_x++)
+        {
+            for (int temp_y = y - halfSize; temp_y <= y + halfSize; temp_y++)
+            {
+                QRgb value_pixel = Transformation::getPixel(temp_x, temp_y, mode);
+                window(matrix_row, matrix_col) = qGreen(value_pixel);
+
+                matrix_col++;
+            }
+            matrix_row++, matrix_col = 0;
+        }
+    } else if (channel == BChannel)
+    {
+
+        for (int temp_x = x - halfSize; temp_x <= x + halfSize; temp_x++)
+        {
+            for (int temp_y = y - halfSize; temp_y <= y + halfSize; temp_y++)
+            {
+                QRgb value_pixel = Transformation::getPixel(temp_x, temp_y, mode);
+                window(matrix_row, matrix_col) = qBlue(value_pixel);
+
+                matrix_col++;
+            }
+            matrix_row++, matrix_col = 0;
+        }
+    }else if (channel == LChannel){
+        for (int temp_x = x - halfSize; temp_x <= x + halfSize; temp_x++)
+        {
+            for (int temp_y = y - halfSize; temp_y <= y + halfSize; temp_y++)
+            {
+                QRgb pixel = Transformation::getPixel(temp_x, temp_y, mode);
+                window(matrix_row, matrix_col) = qGray(pixel);
+
+                matrix_col++;
+            }
+            matrix_row++, matrix_col = 0;
         }
     }
+
     return window;
 }
 
