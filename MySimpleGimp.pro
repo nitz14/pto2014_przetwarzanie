@@ -18,3 +18,5 @@ msvc {
     QMAKE_CXXFLAGS_WARN_ON -= -W3
     QMAKE_CXXFLAGS_WARN_ON += -W2
 }
+
+CONFIG += c++11
