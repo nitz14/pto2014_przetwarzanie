@@ -26,30 +26,11 @@ PNM* NoiseMedian::transform()
                 r=getMedian(x,y,RChannel);
                 g=getMedian(x,y,GChannel);
                 b=getMedian(x,y,BChannel);
-                //te warunki sa bo cos nie pyklo w getMedian can you look ?
-                if(r>255){
-                    r=255;
-                }
-                if(r<0){
-                    r=0;
-                }
-                if(g>255){
-                    g=255;
-                }
-                if(g<0){
-                    g=0;
-                }
-                if(b>255){
-                    b=255;
-                }
-                if(b<0){
-                    b=0;
-                }
-                //to mozna wywalic jak naprawimy to nizej
+
                 QColor newPixel = QColor(r,g,b);
                 newImage->setPixel(x,y,newPixel.rgb());
             }
-            if(image->format() == QImage::Format_Mono){
+            if(image->format() == QImage::Format_Indexed8){
                 pixel = image->pixel(x,y);
                 v=qGray(pixel);
                 tempv=getMedian(x,y,LChannel);
@@ -79,5 +60,8 @@ int NoiseMedian::getMedian(int x, int y, Channel channel)
         }
     }
     std::sort(&tab[0],&tab[temp]);
-    return tab[temp/2];
+
+    int median = tab[temp/2] > 255 ? 255 : tab[temp/2];
+    median = median < 0 ? 0 : median;
+    return median;
 }
