@@ -23,40 +23,25 @@ PNM* NoiseBilateral::transform()
     radius = sigma_d;
     Mode mode = RepeatEdge;
     QRgb pixel;
-    for(int x=0;x<width;x++){
-        for(int y=0;y<height;y++){
-            if(image->format() == QImage::Format_RGB32){ // tutaj ifa bym dał nad forami, to będzie trochę szybciej
-               pixel = getPixel(x,y,mode);
-               int r,g,b;
-               r=calcVal(x,y,RChannel);
-               g=calcVal(x,y,GChannel);
-               b=calcVal(x,y,BChannel);
-               //te warunki sa bo cos nie pyklo w getMedian can you look ?
-               if(r>255){
-                   r=255;
-               }
-               if(r<0){
-                   r=0;
-               }
-               if(g>255){
-                   g=255;
-               }
-               if(g<0){
-                   g=0;
-               }
-               if(b>255){
-                   b=255;
-               }
-               if(b<0){
-                   b=0;
-               }
-               //sprawdzic
-               QColor newPixel = QColor(r,g,b);
-               newImage->setPixel(x,y,newPixel.rgb());
+    int r,g,b;
+    if(image->format() == QImage::Format_RGB32){
+        for(int x=0;x<width;x++){
+            for(int y=0;y<height;y++){
+                pixel = getPixel(x,y,mode);
+
+                r=calcVal(x,y,RChannel);
+                g=calcVal(x,y,GChannel);
+                b=calcVal(x,y,BChannel);
+                QColor newPixel = QColor(r,g,b);
+                newImage->setPixel(x,y,newPixel.rgb());
             }
-            if(image->format() == QImage::Format_Indexed8){
-               int temp = calcVal(x,y,LChannel);
-               newImage->setPixel(x,y,temp);
+        }
+    }
+    if(image->format() == QImage::Format_Indexed8){
+        for(int x=0;x<width;x++){
+            for(int y=0;y<height;y++){
+                int temp = calcVal(x,y,LChannel);
+                newImage->setPixel(x,y,temp);
             }
         }
     }
@@ -66,38 +51,36 @@ PNM* NoiseBilateral::transform()
 int NoiseBilateral::calcVal(int x, int y, Channel channel)
 {
     Mode mode = RepeatEdge;
-    int radius = sigma_d;
-    math::matrix<double> win = getWindow(x,y,radius*2+1,channel,mode);
-    int tempx,tempy;
-    float licz, mian, temp, temp2;
+    math::matrix<float> win = getWindow(x,y,radius*2+1,channel,mode);
+    int tempx,tempy,temp;
+
+    float licz, mian, temp1, temp2;
     licz=mian=0;
     tempx = win.rowno();
     tempy = win.colno();
-
-    int halfSize = floor((radius*2+1)/ 2);
     for(int i=0;i<tempx;i++){
         for(int j=0;j<tempy;j++){
-            int p1x = x+(i-halfSize);
-            p1x = p1x > 0 ? p1x : 0;
-            p1x = p1x < 255 ? p1x : 255;
 
-            int p1y = y + (j-halfSize);
-            p1y = p1y > 0 ? p1y : 0;
-            p1y = p1y < 255 ? p1y : 255;
+            if(channel == RChannel){
+                temp = qRed(image->pixel(x, y));
+            }else if(channel == GChannel){
+                temp = qGreen(image->pixel(x, y));
+            }else if(channel == BChannel){
+                temp = qBlue(image->pixel(x, y));
+            }else{
+                temp = qGray(image->pixel(x, y));
+            }
 
-            QPoint p1 = QPoint(p1x,p1y);
-            QPoint p2 = QPoint(x,y);
-            int val1 = win(i,j);
+            int px = x + (i - (int)((radius * 2 + 1) / 2));
+            if (px <= 0) px = 0;
+            if (px >= 255) px = 255;
+            int py = y + (j - (int)((radius * 2 + 1) / 2));
+            if (py <= 0) py = 0;
+            if (py >= 255) py = 255;
 
-            // tutaj trzeba sprawdzć channel i wybierać odpowiednio kolor r,g,b
-            int val2 = qGray(image->pixel(x,y));
-
-            float colorClos = colorCloseness(val1,val2);
-            float spatialClos = spatialCloseness(p1,p2);
-
-            temp=val1*colorClos*spatialClos;
-            temp2=colorClos*spatialClos;
-            licz+=temp;
+            temp1 = win(i,j)*colorCloseness(win(i,j),temp)*spatialCloseness(QPoint(px, py), QPoint(x, y));
+            temp2 = colorCloseness(win(i,j),temp)*spatialCloseness(QPoint(px, py), QPoint(x, y));
+            licz+=temp1;
             mian+=temp2;
         }
     }

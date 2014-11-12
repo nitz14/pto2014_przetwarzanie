@@ -49,7 +49,7 @@ int NoiseMedian::getMedian(int x, int y, Channel channel)
     pom = radius*2+1;
     temp = 0;
     double tab[100];
-    math::matrix<double> wind = getWindow(x,y,pom,channel,mode);
+    math::matrix<float> wind = getWindow(x,y,pom,channel,mode);
     int tempx,tempy;
     tempx= wind.colno();
     tempy= wind.rowno();
