@@ -37,7 +37,7 @@ PNM* NoiseBilateral::transform()
             }
         }
     }
-    if(image->format() == QImage::Format_Indexed8){
+    else if(image->format() == QImage::Format_Indexed8){
         for(int x=0;x<width;x++){
             for(int y=0;y<height;y++){
                 int temp = calcVal(x,y,LChannel);
@@ -73,10 +73,10 @@ int NoiseBilateral::calcVal(int x, int y, Channel channel)
 
             int px = x + (i - (int)((radius * 2 + 1) / 2));
             if (px <= 0) px = 0;
-            if (px >= 255) px = 255;
+            if (px >= image->width()) px = image->width();
             int py = y + (j - (int)((radius * 2 + 1) / 2));
             if (py <= 0) py = 0;
-            if (py >= 255) py = 255;
+            if (py >= image->height()) py = image->height();
 
             temp1 = win(i,j)*colorCloseness(win(i,j),temp)*spatialCloseness(QPoint(px, py), QPoint(x, y));
             temp2 = colorCloseness(win(i,j),temp)*spatialCloseness(QPoint(px, py), QPoint(x, y));
