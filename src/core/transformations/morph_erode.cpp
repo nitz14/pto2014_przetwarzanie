@@ -14,7 +14,17 @@ const int MorphErode::morph(math::matrix<float> window, math::matrix<bool> se)
 {
     float max=0.0;
 
-    qDebug() << Q_FUNC_INFO << "Not implemented yet!";
-
-    return 0;
+    int tempx,tempy;
+    tempx = window.rowno();
+    tempy = window.colno();
+    for(int i=0;i<tempx;i++){
+        for(int j=0;j<tempy;j++){
+            if(se(i,j)==true){
+                if(window(i,j)>max){
+                    max = window(i,j);
+                }
+            }
+        }
+    }
+    return (int) max;
 }
