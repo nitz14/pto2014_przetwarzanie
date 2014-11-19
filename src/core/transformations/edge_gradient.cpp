@@ -36,8 +36,8 @@ PNM* EdgeGradient::transform()
                 QRgb pixelX = imageX->pixel(x,y); // Getting the pixel(x,y) value
                 QRgb pixelY = imageY->pixel(x,y); // Getting the pixel(x,y) value
 
-                int v = (int) sqrt(pow(qGray(pixelX), 2.0) + pow(qGray(pixelY), 2.0));
-                newImage->setPixel(x,y, v);
+                int v = (int) sqrt(pow(qGray(pixelX),2.0)+pow(qGray(pixelY),2.0));
+                newImage->setPixel(x,y,v);
             }
     }
     else if (image->format() == QImage::Format_RGB32)
