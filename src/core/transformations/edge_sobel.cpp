@@ -41,11 +41,11 @@ math::matrix<float>* EdgeSobel::rawHorizontalDetection()
 {
     math::matrix<float>* x_gradient = new math::matrix<float>(this->image->width(), this->image->height());
 
-    int width = y_gradient->RowNo();
-    int height = y_gradient->ColNo();
+    int width = x_gradient->rowno();
+    int height = x_gradient->colno();
     for (int x=0; x<width; x++){
         for (int y=0; y<height; y++){
-            math::matrix<double> window = getWindow(x, y, 3, LChannel, NullEdge);
+            math::matrix<float> window = getWindow(x, y, 3, LChannel, NullEdge);
             (*x_gradient)(x, y) = sum(join(g_x, window));
         }
     }
@@ -56,12 +56,11 @@ math::matrix<float>* EdgeSobel::rawVerticalDetection()
 {
     math::matrix<float>* y_gradient = new  math::matrix<float>(this->image->width(), this->image->height());
 
-
-    int width = y_gradient->RowNo();
-    int height = y_gradient->ColNo();
+    int width = y_gradient->rowno();
+    int height = y_gradient->colno();
     for (int x=0; x<width; x++){
         for (int y=0; y<height; y++){
-            math::matrix<double> window = getWindow(x, y, 3, LChannel, NullEdge);
+            math::matrix<float> window = getWindow(x, y, 3, LChannel, NullEdge);
             (*y_gradient)(x, y) = sum(join(g_y, window));
         }
     }
