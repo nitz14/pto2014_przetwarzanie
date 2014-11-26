@@ -22,9 +22,9 @@ PNM* EdgeZeroCrossing::transform()
     double sigma = getParameter("sigma").toDouble();
     int    t     = getParameter("threshold").toInt();
 
-    PNM* newImage = new PNM(width, height, QImage::Format_Indexed8);
-
     EdgeLaplaceOfGauss edgeLaplaceOfGauss(image);
+    PNM* newImage = edgeLaplaceOfGauss.transform();
+
     edgeLaplaceOfGauss.setParameter("size",size);
     edgeLaplaceOfGauss.setParameter("sigma",sigma);
 
@@ -35,8 +35,7 @@ PNM* EdgeZeroCrossing::transform()
     if(image->format() == QImage::Format_Indexed8){
         for(int x=0; x<width; x++){
             for(int y=0; y<height;y++){
-                math::matrix<double> mask = laplasian.getWindow(x,y,size,LChannel,NullEdge);
-                //tutaj szukanie maxa i minimum z mask
+                math::matrix<double> mask = laplasian.getWindow(x,y,size,LChannel,RepeatEdge);
                 double max = findMax(mask), min = findMin(mask);
                 if(min < temp - t && max > temp + t){
                     int q = mask(size/2,size/2);
@@ -49,10 +48,9 @@ PNM* EdgeZeroCrossing::transform()
     }else{
         for(int x=0; x<width; x++){
             for(int y=0; y<height; y++){
-                math::matrix<double> redmask = laplasian.getWindow(x,y,size,RChannel,NullEdge);
-                math::matrix<double> bluemask = laplasian.getWindow(x,y,size,BChannel,NullEdge);
-                math::matrix<double> greenmask = laplasian.getWindow(x,y,size,GChannel,NullEdge);
-                //tutaj szukanie maxa i min dla kazdego
+                math::matrix<double> redmask = laplasian.getWindow(x,y,size,RChannel,RepeatEdge);
+                math::matrix<double> bluemask = laplasian.getWindow(x,y,size,BChannel,RepeatEdge);
+                math::matrix<double> greenmask = laplasian.getWindow(x,y,size,GChannel,RepeatEdge);
                 double minR = findMin(redmask),maxR = findMax(redmask);
                 double minB = findMin(bluemask),maxB = findMax(bluemask);
                 double minG = findMin(greenmask),maxG = findMax(greenmask);
