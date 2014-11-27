@@ -81,8 +81,10 @@ PNM* EdgeZeroCrossing::transform()
 
 double EdgeZeroCrossing::findMin(math::matrix<double> mask) {
     double min = 255;
-    for (int x=0; x<mask.colsize(); ++x) {
-        for(int y=0; y<mask.rowsize(); ++y) {
+    int width = mask.colsize();
+    int height = mask.rowsize();
+    for (int x=0; x<width; ++x) {
+        for(int y=0; y<height; ++y) {
             if(mask(x,y) < min) {
                 min = mask(x,y);
             }
@@ -93,8 +95,10 @@ double EdgeZeroCrossing::findMin(math::matrix<double> mask) {
 
 double EdgeZeroCrossing::findMax(math::matrix<double> mask) {
     double max = 0;
-    for (int x=0; x<mask.colsize(); ++x) {
-        for(int y=0; y<mask.rowsize(); ++y) {
+    int width = mask.colsize();
+    int height = mask.rowsize();
+    for (int x=0; x<width; ++x) {
+        for(int y=0; y<height; ++y) {
             if(mask(x,y) > max) {
                 max = mask(x,y);
             }

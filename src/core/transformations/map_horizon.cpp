@@ -35,7 +35,32 @@ PNM* MapHorizon::transform()
 
     PNM* newImage = new PNM(width, height, QImage::Format_Indexed8);
 
-    qDebug() << Q_FUNC_INFO << "Not implemented yet!";
+    PNM tempImage = MapHeight(image).transform();
+    double alpha,dist,reyalpha,delta;
+    int k,l;
+    for(int x=0;x<width;x++){
+        for(int y=0;y<height;y++){
+            alpha = 0.0;
+            int currenth = qRed(tempImage.pixel(x,y));
+            //nie wiem czy to droga do slonca ?!
+            for (k=x+dx,l=y+dy;k<width && l<height && k >= 0 && l >= 0; k+=dx,l+=dy){
+                int rayh = qRed(tempImage.pixel(k,l));//tutaj nie bedzie x,y
+                if(currenth < reyh){
+                    dist = sqrt(pow(k-x,2.0)+pow(l-y,2.0)) * scale;
+                    reyalpha = atan((rayh - currenth) / dist);
+                    if(reyalpha > alpha){
+                        alpha = reyalpha;
+                    }
+                }
+            }
+            delta = alpha - sun_alpha * 3.14/180.;
+            if(delta > 0){
+                newImage->setPixel(x,y,cos(delta)*255);
+            }else{
+                newImage->setPixel(x,y,255);
+            }
+        }
+    }
 
     return newImage;
 }
