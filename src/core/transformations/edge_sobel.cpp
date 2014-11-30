@@ -45,7 +45,7 @@ math::matrix<float>* EdgeSobel::rawHorizontalDetection()
     int height = x_gradient->colno();
     for (int x=0; x<width; x++){
         for (int y=0; y<height; y++){
-            math::matrix<float> window = getWindow(x, y, 3, LChannel, NullEdge);
+            math::matrix<float> window = getWindow(x, y, 3, LChannel, RepeatEdge);
             (*x_gradient)(x, y) = sum(join(g_x, window));
         }
     }
@@ -60,7 +60,7 @@ math::matrix<float>* EdgeSobel::rawVerticalDetection()
     int height = y_gradient->colno();
     for (int x=0; x<width; x++){
         for (int y=0; y<height; y++){
-            math::matrix<float> window = getWindow(x, y, 3, LChannel, NullEdge);
+            math::matrix<float> window = getWindow(x, y, 3, LChannel, RepeatEdge);
             (*y_gradient)(x, y) = sum(join(g_y, window));
         }
     }

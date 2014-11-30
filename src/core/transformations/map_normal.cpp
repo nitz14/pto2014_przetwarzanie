@@ -24,10 +24,8 @@ PNM* MapNormal::transform()
     PNM* tempImage = MapHeight(image).transform();
     EdgeSobel sobel(tempImage);
     double dx , dy , dz, temp,len;
-    math::matrix<double>* gx = sobel.rawHorizontalDetection();
-    math::matrix<double>* gy = sobel.rawVerticalDetection();
-    //sadze ze bez tego nizej bedzie dzialac tez
-    newImage = new PNM(width,height,QImage::Format_RGB32);
+    math::matrix<float>* gx = sobel.rawHorizontalDetection();
+    math::matrix<float>* gy = sobel.rawVerticalDetection();
     temp = 1/strength;
     for(int x=0; x<width;x++){
         for(int y=0; y<height;y++){
