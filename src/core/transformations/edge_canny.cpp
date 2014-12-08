@@ -23,8 +23,19 @@ PNM* EdgeCanny::transform()
         lower_thresh = getParameter("lower_threshold").toInt();
 
     PNM* newImage = new PNM(width, height, QImage::Format_Indexed8);
-
-    qDebug() << Q_FUNC_INFO << "Not implemented yet!";
+    PNM* tmpImage = ConversionGrayscale(image).transform();
+    BlurGaussian blurGauss(tmpImage);
+    blurGauss.setParameter("size", 3);
+    blurGauss.setParameter("sigma", 1.6);
+    tmpImage = blurGauss.transform();
+    EdgeSobel sobel(tmpImage);
+    math::matrix<float>* horizGradient = sobel.rawHorizontalDetection();
+    math::matrix<float>* vertiGradient = sobel.rawVerticalDetection();
+    for(int x=0; x < width; x++){
+        for(int y=0; y < height; y++){
+            //cos tu jest
+        }
+    }
 
     return newImage;
 }
