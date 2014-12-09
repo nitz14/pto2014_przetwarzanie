@@ -13,6 +13,7 @@ public:
 
 
 private:
+    int getGradientDirection(float);
 
 };
 
