@@ -71,19 +71,123 @@ PNM* EdgeCanny::transform()
             } else {
                 newImage->setPixel(x,y,0);
             }
-
         }
     }
 
+    bool imageChanged = true;
+    while(imageChanged)
+    {
+        imageChanged = false;
 
-    for(int x=0; x < width; x++){
-        for(int y=0; y < height; y++){
-            if(qGray(newImage->pixel(x,y)) == 255) {
+        for(int x=0; x < width; x++){
+            for(int y=0; y < height; y++){
+                if(qGray(newImage->pixel(x,y)) == 255) {
+                      newImage->setPixel(x,y,200);
 
+                      switch (getGradientDirection(orientations[x][y])) {
+                      case 0:
+                          if (x>0) {
+                              if (m[x-1][y] >= lower_thresh &&
+                                      qGray(newImage->pixel(x-1,y)) != 200 &&
+                                      getGradientDirection(orientations[x-1][y]) == 0 &&
+                                      m[x-1][y] > m[x-1][y-1] &&
+                                      m[x-1][y] > m[x-1][y+1]) {
+                                  newImage->setPixel(x-1,y,255);
+                                  imageChanged = true;
+                              }
+                          }
+                          if (x<width-1) {
+                              if (m[x+1][y] >= lower_thresh &&
+                                      qGray(newImage->pixel(x+1,y)) != 200 &&
+                                      getGradientDirection(orientations[x+1][y]) == 0 &&
+                                      m[x+1][y] > m[x+1][y-1] &&
+                                      m[x+1][y] > m[x+1][y+1]) {
+                                  newImage->setPixel(x+1,y,255);
+                                  imageChanged = true;
+                              }
+                          }
+                          break;
+                      case 45:
+                          if (x<width-1 && y>0) {
+                              if (m[x+1][y-1] >= lower_thresh &&
+                                      qGray(newImage->pixel(x+1,y-1)) != 200 &&
+                                      getGradientDirection(orientations[x+1][y-1]) == 45 &&
+                                      m[x+1][y-1] > m[x][y-2] &&
+                                      m[x+1][y-1] > m[x+2][y]) {
+                                  newImage->setPixel(x+1,y-1,255);
+                                  imageChanged = true;
+                              }
+                          }
+                          if (x>0 && y<height-1) {
+                              if (m[x-1][y+1] >= lower_thresh &&
+                                      qGray(newImage->pixel(x-1,y+1)) != 200 &&
+                                      getGradientDirection(orientations[x-1][y+1]) == 45 &&
+                                      m[x-1][y+1] > m[x-2][y] &&
+                                      m[x-1][y+1] > m[x][y+2]) {
+                                  newImage->setPixel(x-1,y+1,255);
+                                  imageChanged = true;
+                              }
+                          }
+                          break;
+                      case 90:
+                          if (y>0) {
+                              if (m[x][y-1] >= lower_thresh &&
+                                      qGray(newImage->pixel(x,y-1)) != 200 &&
+                                      getGradientDirection(orientations[x][y-1]) == 90 &&
+                                      m[x][y-1] > m[x-1][y-1] &&
+                                      m[x][y-1] > m[x+2][y-1]) {
+                                  newImage->setPixel(x,y-1,255);
+                                  imageChanged = true;
+                              }
+                          }
+                          if (y<height-1) {
+                              if (m[x][y+1] >= lower_thresh &&
+                                      qGray(newImage->pixel(x,y+1)) != 200 &&
+                                      getGradientDirection(orientations[x][y+1]) == 90 &&
+                                      m[x][y+1] > m[x-1][y+1] &&
+                                      m[x][y+1] > m[x+1][y+1]) {
+                                  newImage->setPixel(x,y+1,255);
+                                  imageChanged = true;
+                              }
+                          }
+                          break;
+                      case 135:
+                        if(x>0 && y>0) {
+                          if (m[x-1][y-1] >= lower_thresh &&
+                                  qGray(newImage->pixel(x-1,y-1)) != 200 &&
+                                  getGradientDirection(orientations[x-1][y-1]) == 135 &&
+                                  m[x-1][y-1] > m[x][y-2] &&
+                                  m[x-1][y-1] > m[x-2][y]) {
+                              newImage->setPixel(x-1,y-1,255);
+                              imageChanged = true;
+                          }
+                        }
+                        if (x<width-1 && y<height-1) {
+                          if (m[x+1][y+1] >= lower_thresh &&
+                                  qGray(newImage->pixel(x+1,y+1)) != 200 &&
+                                  getGradientDirection(orientations[x+1][y+1]) == 135 &&
+                                  m[x-1][y-1] > m[x][y+2] &&
+                                  m[x-1][y-1] > m[x+2][y]) {
+                              newImage->setPixel(x+1,y+1,255);
+                              imageChanged = true;
+                          }
+                        }
+                          break;
+                      default:
+                          break;
+                      }
+                }
             }
         }
     }
 
+    for(int x=0; x < width; x++){
+        for(int y=0; y < height; y++){
+            if(qGray(newImage->pixel(x,y)) == 200) {
+                  newImage->setPixel(x,y,255);
+            }
+        }
+    }
     return newImage;
 }
 
