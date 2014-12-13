@@ -13,8 +13,9 @@ public:
 
 
 private:
-    int getGradientDirection(float);
-
+    void initMembers();
+    short bucket[361];
+    math::matrix<float> m, o;
 };
 
 #endif // EDGECANNY_H
