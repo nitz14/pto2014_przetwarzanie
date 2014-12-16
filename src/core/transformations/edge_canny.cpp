@@ -49,8 +49,7 @@ PNM* EdgeCanny::transform()
             for (int j = 0; j < height; j++)
                 newImage->setPixel(i, j, PIXEL_VAL_MIN);
         PNM* imageGrayScale = new PNM(width, height, QImage::Format_Indexed8);
-//nie rozumiem czemu te konstruktory nie dzialaja
-        imageGrayScale = ConversionGrayscale::ConversionGrayscale(image).transform();
+        imageGrayScale = ConversionGrayscale(image).transform();
         BlurGaussian gauss(imageGrayScale);
         gauss.setParameter("size", 3);
         gauss.setParameter("sigma", 1.6f);
