@@ -35,7 +35,7 @@ PNM* EdgeZeroCrossing::transform()
     if(image->format() == QImage::Format_Indexed8){
         for(int x=0; x<width; x++){
             for(int y=0; y<height;y++){
-                math::matrix<double> mask = laplasian.getWindow(x,y,size,LChannel,RepeatEdge);
+                math::matrix<float> mask = laplasian.getWindow(x,y,size,LChannel,RepeatEdge);
                 double max = findMax(mask), min = findMin(mask);
                 if(min < temp - t && max > temp + t){
                     int q = mask(size/2,size/2);
@@ -48,9 +48,9 @@ PNM* EdgeZeroCrossing::transform()
     }else{
         for(int x=0; x<width; x++){
             for(int y=0; y<height; y++){
-                math::matrix<double> redmask = laplasian.getWindow(x,y,size,RChannel,RepeatEdge);
-                math::matrix<double> bluemask = laplasian.getWindow(x,y,size,BChannel,RepeatEdge);
-                math::matrix<double> greenmask = laplasian.getWindow(x,y,size,GChannel,RepeatEdge);
+                math::matrix<float> redmask = laplasian.getWindow(x,y,size,RChannel,RepeatEdge);
+                math::matrix<float> bluemask = laplasian.getWindow(x,y,size,BChannel,RepeatEdge);
+                math::matrix<float> greenmask = laplasian.getWindow(x,y,size,GChannel,RepeatEdge);
                 double minR = findMin(redmask),maxR = findMax(redmask);
                 double minB = findMin(bluemask),maxB = findMax(bluemask);
                 double minG = findMin(greenmask),maxG = findMax(greenmask);
@@ -79,7 +79,7 @@ PNM* EdgeZeroCrossing::transform()
 
 }
 
-double EdgeZeroCrossing::findMin(math::matrix<double> mask) {
+double EdgeZeroCrossing::findMin(math::matrix<float> mask) {
     double min = 255;
     int width = mask.colsize();
     int height = mask.rowsize();
@@ -93,7 +93,7 @@ double EdgeZeroCrossing::findMin(math::matrix<double> mask) {
     return min;
 }
 
-double EdgeZeroCrossing::findMax(math::matrix<double> mask) {
+double EdgeZeroCrossing::findMax(math::matrix<float> mask) {
     double max = 0;
     int width = mask.colsize();
     int height = mask.rowsize();

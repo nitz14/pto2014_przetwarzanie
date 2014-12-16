@@ -11,8 +11,8 @@ public:
 
     virtual PNM* transform();
 private:
-    double findMin(math::matrix<double> mask);
-    double findMax(math::matrix<double> mask);
+    double findMin(math::matrix<float> mask);
+    double findMax(math::matrix<float> mask);
 };
 
 #endif // EDGE_ZERO_H

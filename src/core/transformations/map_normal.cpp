@@ -48,3 +48,4 @@ PNM* MapNormal::transform()
         }
 
     return newImage;
+}

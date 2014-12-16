@@ -3,6 +3,7 @@
 #include "bin_gradient.h"
 #include "edge_laplacian.h"
 #include "hough.h"
+#include "morph_erode.h"
 
 #include <QPainter>
 
@@ -24,7 +25,25 @@ PNM* HoughLines::transform()
 
     PNM* newImage = new PNM(image->copy());
 
-    qDebug() << Q_FUNC_INFO << "Not implemented yet!";
+    EdgeLaplacian lapl(image);
+    lapl.setParameter("size", 3);
+    PNM* edgeImage = lapl.transform();
+    edgeImage = BinarizationGradient(edgeImage).transform();
+    Hough hough(edgeImage);
+    hough.setParameter("theta_density", 3);
+    hough.setParameter("skip_edge_detection", true);
+    PNM* tmpImage = hough.transform();
 
+    QPainter painter(newImage);
+    painter.setPen(QColor(255,0,0));
+
+    for(int theta=1; theta < tmpImage->width(); theta++){
+        for(int rho=0; rho < tmpImage->height(); rho++){
+            if(qRed(tmpImage->pixel(theta, rho)) > threshold){
+                //uzupelnic
+            }
+        }
+    }
+    //uzupelnic
     return newImage;
 }
