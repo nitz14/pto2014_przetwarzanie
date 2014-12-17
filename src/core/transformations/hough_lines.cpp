@@ -28,22 +28,33 @@ PNM* HoughLines::transform()
     EdgeLaplacian lapl(image);
     lapl.setParameter("size", 3);
     PNM* edgeImage = lapl.transform();
-    edgeImage = BinarizationGradient(edgeImage).transform();
+    PNM* binImage = BinarizationGradient(edgeImage).transform();
+
     Hough hough(edgeImage);
     hough.setParameter("theta_density", 3);
     hough.setParameter("skip_edge_detection", true);
-    PNM* tmpImage = hough.transform();
+    PNM* houghImage = hough.transform();
+    QPainter p(newImage);
+    p.setPen(Qt::red);
 
-    QPainter painter(newImage);
-    painter.setPen(QColor(255,0,0));
-
-    for(int theta=1; theta < tmpImage->width(); theta++){
-        for(int rho=0; rho < tmpImage->height(); rho++){
-            if(qRed(tmpImage->pixel(theta, rho)) > threshold){
-                //uzupelnic
+    for(int theta=0; theta < houghImage->width(); theta++) {
+        for(int rho=0; rho < houghImage->height(); rho++) {
+            if(qGray(houghImage->pixel(theta, rho)) > threshold) {
+                double rtheta = ((double)theta/3.0)*M_PI/180.0;
+                int rrho = rho - houghImage->height()/2;
+                p.drawLine(0, round(rrho/sin(rtheta)), newImage->width()-1, round((rrho - (newImage->width()-1)*cos(rtheta))/sin(rtheta)));
             }
         }
     }
-    //uzupelnic
+    if(drawWholeLines == false) {
+        for(int x=0; x<binImage->width(); x++) {
+            for(int y=0; y<binImage->height(); y++) {
+                if(qGray(binImage->pixel(x,y)) == 0) {
+                    newImage->setPixel(x,y, image->pixel(x,y));
+                }
+            }
+        }
+    }
+
     return newImage;
 }
