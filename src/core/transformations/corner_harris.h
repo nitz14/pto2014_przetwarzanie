@@ -10,6 +10,7 @@ public:
     CornerHarris(PNM*, ImageViewer*);
 
     PNM* transform();
+
 };
 
 #endif // CORNER_HARRIS_H
